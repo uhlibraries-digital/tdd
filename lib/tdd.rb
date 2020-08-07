@@ -15,7 +15,7 @@ module TDD
       '5.1 Prepare Ingest Package' => 'packageIngest',
       'Statistics' => 'Statistics',
       'Quit' => 'Quit' }
-    prompt.select('Choose a function:', choices, per_page: 11)
+    prompt.select('Choose a function:', choices, per_page: 11, cycle: true)
   end
 
   def new_spinner(message)
