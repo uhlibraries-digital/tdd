@@ -370,6 +370,39 @@ def execute(function, config, log)
       execute function, config, log
     end
 
+  when 'seleniumScript'
+    template_path = Pathname.new(config.fetch(:seleniumTemplates))
+    choices = ['.. Main Menu', 5, 10]
+    response = prompt.select('Number of issues ingested:', choices)
+    case response
+    when 5
+      template_file = 'TDD_template_005.side'
+    when 10
+      template_file = 'TDD_template_010.side'
+    when '.. Main Menu'
+      function = TDD.main_menu
+      execute function, config, log      
+    end
+    selenium_suite = JSON.parse(File.read(template_path.join(template_file)))
+    first = prompt.ask('Enter first DSpace item number:').to_i
+    last = first + response - 1
+    items = [*first..last]
+    collection = Pathname.new(config.fetch(:collection))
+    output_path = Pathname.new(config.fetch(:seleniumOutput))
+    items.each_with_index do |item,i|
+      url = collection.join(item.to_s).to_s
+      selenium_suite['tests'][i]['commands'][0]['target'] = url.strip
+    end
+    file_path = output_path.join("#{TDD.timestamp}.side") 
+    File.open(file_path,'w') do |f|
+      f.write(selenium_suite.to_json)
+    end
+    log.info("#{TDD.timestamp} : wrote Selenium suite for #{response} Cougarnet items")
+    puts pastel.green("Selenium suite available at: #{file_path}")
+    prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
+    function = TDD.main_menu
+    execute function, config, log
+
   when 'Statistics'
     choices = ['.. Main Menu', 'Digi Production', 'Completed Volumes']
     response = prompt.select('Choose a report:', choices)

@@ -13,6 +13,7 @@ module TDD
       '4 Metadata Notes' => 'getMetaNotes',
       '4 Metadata Validation Report' => 'metadataValidation',
       '5.1 Prepare Ingest Package' => 'packageIngest',
+      '5.3 Prepare Selenium Script' => 'seleniumScript',
       'Statistics' => 'Statistics',
       'Quit' => 'Quit' }
     prompt.select('Choose a function:', choices, per_page: 11, cycle: true)
