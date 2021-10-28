@@ -107,6 +107,12 @@ def execute(function, config, log)
     input_paths = Pathname.new(config.fetch(:ocrInput)).children
     output_paths = Pathname.new(config.fetch(:ocrOutput)).children
     if input_paths.size == output_paths.size
+      if input_paths.size == 0
+        puts pastel.red('There are no objects to archive.')
+        prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
+        function = TDD.main_menu
+        execute function, config, log
+      end
       response = prompt.select("Archive #{input_paths.size} objects in OCR Batch #{pastel.yellow(batch)}?", %w[Yes No])
       if response == 'Yes'
         input_dirs = []
@@ -117,7 +123,7 @@ def execute(function, config, log)
           total = input_paths.size + output_paths.size
           bar = ProgressBar.create(total: total, format: 'Archiving OCR Batch: %c/%C |%W| %a')
           FileUtils.mkdir_p "#{config.fetch(:acArchive)}/#{batch}"
-          FileUtils.mkdir_p "#{config.fetch(:ocrPostProcess)}/#{batch}"
+          FileUtils.mkdir_p "#{config.fetch(:toMetadata)}/#{batch}"
           input_metadata = {}
           output_metadata = {}
           input_paths.each do |path|
@@ -135,7 +141,7 @@ def execute(function, config, log)
             output_file_paths = path.children
             output_file_paths.each { |file| output_files << file.basename.to_s }
             output_metadata[id] = output_files
-            FileUtils.mv path, "#{config.fetch(:ocrPostProcess)}/#{batch}/#{id}"
+            FileUtils.mv path, "#{config.fetch(:toMetadata)}/#{batch}/#{id}"
             bar.increment
           end
           spinner = TDD.new_spinner('Writing Batch Metadata')
@@ -153,7 +159,7 @@ def execute(function, config, log)
           function = TDD.main_menu
           execute function, config, log
         else
-          puts 'The identifiers in the Input & Output directories do not match.'
+          puts pastel.red('The identifiers in the Input & Output directories do not match.')
           puts 'Please check the directories and try again.'
           prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
           function = TDD.main_menu
@@ -164,7 +170,7 @@ def execute(function, config, log)
         execute function, config, log
       end
     else
-      puts 'The number of folders in the Input & Output directories do not match.'
+      puts pastel.red('The number of folders in the Input & Output directories do not match.')
       puts 'Please check the directories and try again.'
       prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
       function = TDD.main_menu
@@ -257,7 +263,7 @@ def execute(function, config, log)
         metadata = YAML.load_file(path)
       rescue
         validation_errors << path
-      end      
+      end
     end
     if validation_errors.size > 0
       errors_path = "#{function_path}/0_Documentation/validation/validation_errors_#{time}.txt"
@@ -381,7 +387,7 @@ def execute(function, config, log)
       template_file = 'TDD_template_010.side'
     when '.. Main Menu'
       function = TDD.main_menu
-      execute function, config, log      
+      execute function, config, log
     end
     selenium_suite = JSON.parse(File.read(template_path.join(template_file)))
     first = prompt.ask('Enter first DSpace item number:').to_i
@@ -393,7 +399,7 @@ def execute(function, config, log)
       url = collection.join(item.to_s).to_s
       selenium_suite['tests'][i]['commands'][0]['target'] = url.strip
     end
-    file_path = output_path.join("#{TDD.timestamp}.side") 
+    file_path = output_path.join("#{TDD.timestamp}.side")
     File.open(file_path,'w') do |f|
       f.write(selenium_suite.to_json)
     end

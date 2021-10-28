@@ -5,11 +5,10 @@ module TDD
 
   def main_menu
     prompt = TTY::Prompt.new
-    choices = { 
+    choices = {
       '2.3 Create Separation Folders' => 'createSepFolders',
       '3.0 Archive Digitized Batch' => 'archiveDigiBatch',
       '3.1 Archive OCR Batch' => 'archiveOCRBatch',
-      '3.3 Process OCR Batch' => 'processOCRBatch',
       '4 Metadata Notes' => 'getMetaNotes',
       '4 Metadata Validation Report' => 'metadataValidation',
       '5.1 Prepare Ingest Package' => 'packageIngest',
@@ -58,7 +57,7 @@ module TDD
       'dc.format.digitalOrigin',
       'dc.type.genre',
       'dc.description.abstract',
-      'dc.rights'      
+      'dc.rights'
     ]
   end
 
@@ -79,7 +78,7 @@ module TDD
       'dc.format.digitalOrigin',
       'dc.type.genre',
       'dc.description.abstract',
-      'dc.rights'      
+      'dc.rights'
     ]
   end
 
@@ -125,7 +124,7 @@ module TDD
         end
       end
     end
-    images    
+    images
   end
 
   def timestamp(time = Time.now)
