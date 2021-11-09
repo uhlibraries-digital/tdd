@@ -35,15 +35,16 @@ def execute(function, config, log)
       if response == 'Yes'
         spinner = TDD.new_spinner('Creating Metadata Folders')
         spinner.auto_spin
+        batch_access_path = "#{batch}/Output/TIFF/#{batch.basename.to_s}"
         batch.children.each do |volume|
           if volume.basename.to_s == 'Output'
             next
           else
             oclc = volume.basename.to_s
-            meta_path = "#{batch}/Output/TIFF/#{batch.basename.to_s}/#{oclc}/metadata"
+            meta_path = "#{batch_access_path}/#{oclc}/metadata"
             FileUtils.mkdir_p meta_path
             FileUtils.cp("#{volume}/metadata.txt", "#{meta_path}/metadata.txt")
-            access_path = Pathname.new("#{batch}/Output/TIFF/#{batch.basename.to_s}/#{oclc}")
+            access_path = Pathname.new("#{batch_access_path}/#{oclc}")
             access_path.children.each do |tiff|
               if tiff.basename.to_s == 'metadata'
                 next
