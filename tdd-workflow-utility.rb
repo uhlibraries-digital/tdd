@@ -23,17 +23,17 @@ def execute(function, config, log)
 
   case function
 
-  when 'createSepFolders'
-    function_path = Pathname.new(config.fetch(:createSepFolders))
+  when 'createMetaFolders'
+    function_path = Pathname.new(config.fetch(:createMetaFolders))
     choices = TDD.get_choices function_path
-    batch = prompt.select('Create Separation Folders:', choices, per_page: 15)
+    batch = prompt.select('Create Metadata Folders:', choices, per_page: 15)
     if batch == 'Main Menu'
       function = TDD.main_menu
       execute function, config, log
     else
       response = prompt.select("Process Batch #{pastel.yellow(batch.basename)}?", %w[Yes No])
       if response == 'Yes'
-        spinner = TDD.new_spinner('Creating Separation Folders')
+        spinner = TDD.new_spinner('Creating Metadata Folders')
         spinner.auto_spin
         batch.children.each do |volume|
           if volume.basename.to_s == 'Output'
@@ -43,11 +43,21 @@ def execute(function, config, log)
             meta_path = "#{batch}/Output/TIFF/#{batch.basename.to_s}/#{oclc}/metadata"
             FileUtils.mkdir_p meta_path
             FileUtils.cp("#{volume}/metadata.txt", "#{meta_path}/metadata.txt")
+            access_path = "#{batch}/Output/TIFF/#{batch.basename.to_s}/#{oclc}"
+            access_path.children.each do |tiff|
+              if tiff.basename.to_s == 'metadata'
+                next
+              else
+                if tiff.basename.to_s.chars.last(3).join == '_sp'
+                  FileUtils.mv(tiff, meta_path)
+                end
+              end
+            end
           end
         end
-        FileUtils.mv(batch, batch.parent.parent.join("1_to_separation/#{batch.basename.to_s}"))
-        log.info("#{TDD.timestamp} : created separation folders for batch #{batch.basename}")
-        spinner.success(pastel.green('Separation Folders Created'))
+        FileUtils.mv(batch, config.fetch(:digiQC))
+        log.info("#{TDD.timestamp} : created metadata folders for batch #{batch.basename}")
+        spinner.success(pastel.green('Metadata Folders Created'))
         prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
         function = TDD.main_menu
         execute function, config, log

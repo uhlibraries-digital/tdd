@@ -6,7 +6,7 @@ module TDD
   def main_menu
     prompt = TTY::Prompt.new
     choices = {
-      '2.3 Create Separation Folders' => 'createSepFolders',
+      '2.3 Create Metadata Folders' => 'createMetaFolders',
       '3.0 Archive Digitized Batch' => 'archiveDigiBatch',
       '3.1 Archive OCR Batch' => 'archiveOCRBatch',
       '4 Metadata Notes' => 'getMetaNotes',
