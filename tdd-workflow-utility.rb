@@ -43,7 +43,7 @@ def execute(function, config, log)
             meta_path = "#{batch}/Output/TIFF/#{batch.basename.to_s}/#{oclc}/metadata"
             FileUtils.mkdir_p meta_path
             FileUtils.cp("#{volume}/metadata.txt", "#{meta_path}/metadata.txt")
-            access_path = "#{batch}/Output/TIFF/#{batch.basename.to_s}/#{oclc}"
+            access_path = Pathname.new("#{batch}/Output/TIFF/#{batch.basename.to_s}/#{oclc}")
             access_path.children.each do |tiff|
               if tiff.basename.to_s == 'metadata'
                 next
