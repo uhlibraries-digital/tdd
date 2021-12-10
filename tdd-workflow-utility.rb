@@ -279,6 +279,7 @@ def execute(function, config, log)
   when 'addExif'
     MiniExiftool.command = config.fetch(:exifTool)
     function_path = Pathname.new(config.fetch(:addExif))
+    function_path_size = function_path.children.size
     open_access_path = Pathname.new(config.fetch(:openAccessStaging))
     cougarnet_path = Pathname.new(config.fetch(:cougarnetStaging))
     rights_errors = []
@@ -288,14 +289,16 @@ def execute(function, config, log)
       function_path.children.each_with_index do |volume,i|
         metadata = YAML.load_file(volume.join('metadata', "#{volume.basename.to_s}_metadata.txt"))
         pdf = volume.join("#{volume.basename.to_s}.pdf")
-        TDD.add_exif(pdf, metadata, "#{i+1}/#{function_path.children.size}")
         case metadata['dc.rights']
         when 'In Copyright'
+          TDD.add_exif(pdf, metadata, "#{i+1}/#{function_path_size}")
           FileUtils.mv volume, cougarnet_path
         when 'No Copyright'
+          TDD.add_exif(pdf, metadata, "#{i+1}/#{function_path_size}")
           FileUtils.mv volume, open_access_path
         else
-          rights_errors << "#{volume} : #{metadata['dc.rights']}"
+          puts "#{i+1}/#{function_path_size}: #{volume.basename}  #{pastel.red('Rights Error')}"
+          rights_errors << "#{volume} : '#{metadata['dc.rights']}'"
         end
       end
       if rights_errors.size > 0
