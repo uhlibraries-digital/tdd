@@ -49,7 +49,7 @@ def execute(function, config, log)
               if tiff.basename.to_s == 'metadata'
                 next
               else
-                if tiff.basename.to_s.chars.last(3).join == '_sp'
+                if tiff.basename.sub_ext('').to_s.chars.last(3).join == '_sp'
                   FileUtils.mv(tiff, meta_path)
                 end
               end
