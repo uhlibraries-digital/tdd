@@ -11,6 +11,7 @@ module TDD
       '3.1 Archive OCR Batch' => 'archiveOCRBatch',
       '4 Metadata Notes' => 'getMetaNotes',
       '4.2 Validate YAML' => 'yamlValidation',
+      '4.3 Add EXIF Metadata' => 'addExif',
       '5.1 Prepare Ingest Package' => 'packageIngest',
       '5.3 Prepare Selenium Script' => 'seleniumScript',
       'Statistics' => 'Statistics',

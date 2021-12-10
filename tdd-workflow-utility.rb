@@ -188,37 +188,6 @@ def execute(function, config, log)
       execute function, config, log
     end
 
-  when 'processOCRBatch'
-    MiniExiftool.command = config.fetch(:exifTool)
-    function_path = Pathname.new(config.fetch(:ocrPostProcess))
-    choices = TDD.get_choices function_path
-    batch = prompt.select('Select OCR Batch:', choices, per_page: 15)
-    if batch == 'Main Menu'
-      function = TDD.main_menu
-      execute function, config, log
-    else
-      response = prompt.select("Process Batch #{pastel.yellow(batch.basename)}?", %w[Yes No])
-      if response == 'Yes'
-        puts pastel.yellow("Processing Batch #{pastel.yellow(batch.basename)} ...")
-        # bar = ProgressBar.create(total: batch.children.size, format: 'Processing OCR Batch: %c/%C |%W| %a')
-        batch.children.each_with_index do |volume,i|
-          metadata = YAML.load_file(volume.join('metadata', "#{volume.basename.to_s}_metadata.txt"))
-          pdf = volume.join("#{volume.basename.to_s}.pdf")
-          TDD.add_exif(pdf, metadata, "#{i+1}/#{batch.children.size}")
-          # bar.increment
-        end
-        log.info("#{TDD.timestamp} : processed OCR batch #{batch.basename} with #{batch.children.size} objects")
-        FileUtils.mv batch, "#{config.fetch(:toMetadata)}/#{batch.basename}"
-        puts pastel.green('Processing Complete')
-        prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
-        function = TDD.main_menu
-        execute function, config, log
-      else
-        function = TDD.main_menu
-        execute function, config, log
-      end
-    end
-
   when 'getMetaNotes'
     function_path = Pathname.new(config.fetch(:toMetadata))
     notes_path = function_path.join('0_Documentation','notes')
@@ -265,44 +234,91 @@ def execute(function, config, log)
   when 'yamlValidation'
     function_path = Pathname.new(config.fetch(:yamlValidation))
     validation_path = Pathname.new(config.fetch(:validationErrors))
-    exif_path = Pathname.new(config.fetch(:toExif))
+    exif_path = Pathname.new(config.fetch(:addExif))
     metadata_paths = Dir.glob("#{function_path.to_s.gsub('\\', '/')}/**/*_metadata.txt")
     time = TDD.timestamp
     validation_errors = []
-    spinner = TDD.new_spinner('Validating YAML Files')
-    spinner.auto_spin
-    metadata_paths.each do |path|
-      begin
-        metadata = YAML.load_file(path)
-      rescue
-        validation_errors << path
+    response = prompt.select("Validate YAML for #{function_path.children.size} objects?", %w[Yes No])
+    if response == 'Yes'
+      spinner = TDD.new_spinner('Validating YAML Files')
+      spinner.auto_spin
+      metadata_paths.each do |path|
+        begin
+          metadata = YAML.load_file(path)
+        rescue
+          validation_errors << path
+        else
+          issue = Pathname.new(path).parent.parent
+          FileUtils.mv issue, exif_path
+        end
+      end
+      if validation_errors.size > 0
+        errors_path = "#{validation_path}/validation_errors_#{time}.txt"
+        File.open(errors_path, "w+") do |f|
+          f.puts(validation_errors)
+        end
+        if validation_errors.size == 1
+          e = "Error"
+        else
+          e = "Errors"
+        end
+        log.info("#{TDD.timestamp} : validated metadata with #{validation_errors.size} #{e}: #{errors_path}")
+        spinner.success(pastel.red("Found #{validation_errors.size} #{e}: #{errors_path}"))
       else
-        issue = Pathname.new(path).parent.parent
-        FileUtils.mv issue, exif_path
+        log.info("#{TDD.timestamp} : validated metadata with no errors")
+        spinner.success(pastel.green("No YAML Validation Errors Found"))
       end
-    end
-    if validation_errors.size > 0
-      errors_path = "#{validation_path}/validation_errors_#{time}.txt"
-      File.open(errors_path, "w+") do |f|
-        f.puts(validation_errors)
-      end
-      if validation_errors.size == 1
-        e = "Error"
-      else
-        e = "Errors"
-      end
-      log.info("#{TDD.timestamp} : validated metadata with #{validation_errors.size} #{e}: #{errors_path}")
-      spinner.success(pastel.red("Found #{validation_errors.size} #{e}: #{errors_path}"))
+      prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
+      function = TDD.main_menu
+      execute function, config, log
     else
-      log.info("#{TDD.timestamp} : validated metadata with no errors")
-      spinner.success(pastel.green("No YAML Validation Errors Found"))
+      function = TDD.main_menu
+      execute function, config, log
     end
-    prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
-    function = TDD.main_menu
-    execute function, config, log
+
+  when 'addExif'
+    MiniExiftool.command = config.fetch(:exifTool)
+    function_path = Pathname.new(config.fetch(:addExif))
+    open_access_path = Pathname.new(config.fetch(:openAccessStaging))
+    cougarnet_path = Pathname.new(config.fetch(:cougarnetStaging))
+    rights_errors = []
+    response = prompt.select("Add EXIF Metadata for #{function_path.children.size} objects?", %w[Yes No])
+    if response == 'Yes'
+      puts pastel.yellow("Adding EXIF Metadata ...")
+      function_path.children.each_with_index do |volume,i|
+        metadata = YAML.load_file(volume.join('metadata', "#{volume.basename.to_s}_metadata.txt"))
+        pdf = volume.join("#{volume.basename.to_s}.pdf")
+        TDD.add_exif(pdf, metadata, "#{i+1}/#{function_path.children.size}")
+        case metadata['dc.rights']
+        when 'In Copyright'
+          FileUtils.mv volume, cougarnet_path
+        when 'No Copyright'
+          FileUtils.mv volume, open_access_path
+        else
+          rights_errors << "#{volume} : #{metadata['dc.rights']}"
+        end
+      end
+      if rights_errors.size > 0
+        if rights_errors.size == 1
+          s = 'statement'
+        else
+          s = 'statements'
+        end
+        puts pastel.red("Unknown rights #{s} found:")
+        rights_errors.each {|error| puts pastel.yellow(error)}
+      end
+      log.info("#{TDD.timestamp} : added EXIF metadata to #{function_path.children.size} objects")
+      puts pastel.green('EXIF Metadata Complete')
+      prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
+      function = TDD.main_menu
+      execute function, config, log
+    else
+      function = TDD.main_menu
+      execute function, config, log
+    end
 
   when 'packageIngest'
-    response = prompt.select("Please select ingest package type:", ['Open Access', 'Cougarnet', 'Cancel'])
+    response = prompt.select("Please select ingest package type:", ['Open Access', 'Cougarnet', pastel.red('Cancel')])
     case response
     when 'Cancel'
       function = TDD.main_menu
