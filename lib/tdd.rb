@@ -10,7 +10,7 @@ module TDD
       '3.0 Archive Digitized Batch' => 'archiveDigiBatch',
       '3.1 Archive OCR Batch' => 'archiveOCRBatch',
       '4 Metadata Notes' => 'getMetaNotes',
-      '4 Metadata Validation Report' => 'metadataValidation',
+      '4.2 Validate YAML' => 'yamlValidation',
       '5.1 Prepare Ingest Package' => 'packageIngest',
       '5.3 Prepare Selenium Script' => 'seleniumScript',
       'Statistics' => 'Statistics',

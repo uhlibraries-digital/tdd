@@ -262,18 +262,22 @@ def execute(function, config, log)
     function = TDD.main_menu
     execute function, config, log
 
-  when 'metadataValidation'
-    function_path = Pathname.new(config.fetch(:toMetadata))
+  when 'yamlValidation'
+    function_path = Pathname.new(config.fetch(:yamlValidation))
+    exif_path = Pathname.new(config.fetch(:toExif))
     metadata_paths = Dir.glob("#{function_path.to_s.gsub('\\', '/')}/**/*_metadata.txt")
     time = TDD.timestamp
     validation_errors = []
-    spinner = TDD.new_spinner('Validating Metadata Files')
+    spinner = TDD.new_spinner('Validating YAML Files')
     spinner.auto_spin
     metadata_paths.each do |path|
       begin
         metadata = YAML.load_file(path)
       rescue
         validation_errors << path
+      else
+        issue = Pathname.new(path).parent.parent
+        FileUtils.mv issue, exif_path
       end
     end
     if validation_errors.size > 0
