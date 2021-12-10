@@ -264,6 +264,7 @@ def execute(function, config, log)
 
   when 'yamlValidation'
     function_path = Pathname.new(config.fetch(:yamlValidation))
+    validation_path = Pathname.new(config.fetch(:validationErrors))
     exif_path = Pathname.new(config.fetch(:toExif))
     metadata_paths = Dir.glob("#{function_path.to_s.gsub('\\', '/')}/**/*_metadata.txt")
     time = TDD.timestamp
@@ -281,7 +282,7 @@ def execute(function, config, log)
       end
     end
     if validation_errors.size > 0
-      errors_path = "#{function_path}/0_Documentation/validation/validation_errors_#{time}.txt"
+      errors_path = "#{validation_path}/validation_errors_#{time}.txt"
       File.open(errors_path, "w+") do |f|
         f.puts(validation_errors)
       end
