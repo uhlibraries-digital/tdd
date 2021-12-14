@@ -321,7 +321,7 @@ def execute(function, config, log)
     end
 
   when 'packageIngest'
-    response = prompt.select("Please select ingest package type:", ['Open Access', 'Cougarnet', pastel.red('Cancel')])
+    response = prompt.select("Please select ingest package type:", ['Open Access', 'Cougarnet', 'Cancel'])
     case response
     when 'Cancel'
       function = TDD.main_menu
