@@ -9,12 +9,13 @@ module TDD
       '2.3 Create Metadata Folders' => 'createMetaFolders',
       '3.0 Archive Digitized Batch' => 'archiveDigiBatch',
       '3.1 Archive OCR Batch' => 'archiveOCRBatch',
-      '4 Metadata Notes' => 'getMetaNotes',
+      '4.0 Metadata Notes' => 'getMetaNotes',
+      '4.1 Batch Metadata Report' => 'batchMetadataReport',
       '4.2 Validate YAML' => 'yamlValidation',
       '4.3 Add EXIF Metadata' => 'addExif',
       '5.1 Prepare Ingest Package' => 'packageIngest',
       '5.3 Prepare Selenium Script' => 'seleniumScript',
-      'Statistics' => 'Statistics',
+      # 'Statistics' => 'Statistics',
       'Quit' => 'Quit' }
     prompt.select('Choose a function:', choices, per_page: 11, cycle: true)
   end
@@ -25,11 +26,15 @@ module TDD
     spinner = TTY::Spinner.new(spinner_format, success_mark: pastel.green('+'))
   end
 
-  def get_choices(path)
+  def get_choices(path, exclude = [])
     choices = {}
     choices['.. (Main Menu)'] = 'Main Menu'
     batches = path.children
-    batches.each {|path| choices[path.basename] = path}
+    batches.each do |path|
+      unless exclude.include? path.basename.to_s
+        choices[path.basename] = path
+      end
+    end
     choices
   end
 

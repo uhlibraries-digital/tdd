@@ -231,6 +231,63 @@ def execute(function, config, log)
     function = TDD.main_menu
     execute function, config, log
 
+  when 'batchMetadataReport'
+    function_path = Pathname.new(config.fetch(:toMetadataEditing))
+    exclude = %w(1_in_copyright 2_no_copyright 3_borrower_notice 4_potential_trigger 5_digital_problem_theses 6_questions4Laura 7_salima)
+    choices = TDD.get_choices function_path, exclude
+    batch = prompt.select('Batch Metadata Report:', choices, per_page: 15)
+    if batch == 'Main Menu'
+      function = TDD.main_menu
+      execute function, config, log
+    else
+      response = prompt.select("Create Metadata Report for Batch #{pastel.yellow(batch.basename)}?", %w[Yes No])
+      if response == 'Yes'
+        spinner = TDD.new_spinner('Writing Metadata Report')
+        spinner.auto_spin
+        batch_path = function_path.join(batch)
+        metadata_paths = Dir.glob("#{batch_path.to_s.gsub('\\', '/')}/**/*_metadata.txt")
+        time = TDD.timestamp
+        invalid = []
+        csv_headers = []
+        TDD.headers.each {|field| csv_headers << field unless field == 'filename'}
+        TDD.admin_fields.each {|field| csv_headers << field}
+        CSV.open("#{batch_path}/metadata_#{time}.csv", 'w') do |csv|
+          csv << csv_headers
+          metadata_paths.each do |path|
+            begin
+              metadata = YAML.load_file(path)
+            rescue StandardError => e
+              invalid << path
+              log.error "#{e}"
+              next
+            end
+            row = []
+            csv_headers.each do |field|
+              row << metadata[field]
+            end
+            csv << row
+          end
+        end
+        spinner.success(pastel.green("Batch Metadata Report: #{batch_path}/metadata_#{time}.csv"))
+        if invalid.size > 0
+          file_names = []
+          invalid.each {|path| file_names << Pathname.new(path).basename.to_s }
+          if invalid.size == 1
+            err = 'error'
+          else
+            err = 'errors'
+          end
+          puts pastel.red("Found #{invalid.size} metadata validation #{err}: #{file_names}")
+        end
+        prompt.keypress('Press Space or Return to continue ...', keys: %i[space return])
+        function = TDD.main_menu
+        execute function, config, log
+      else
+        function = TDD.main_menu
+        execute function, config, log
+      end
+    end
+
   when 'yamlValidation'
     function_path = Pathname.new(config.fetch(:yamlValidation))
     validation_path = Pathname.new(config.fetch(:validationErrors))
