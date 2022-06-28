@@ -444,7 +444,7 @@ def execute(function, config, log)
               metadata << v
             end
           end
-          creator = metadata[3].strip.split(',')[0]
+          creator = metadata[3].strip.split(',')[0].gsub(/\s/,'')
           date = metadata[5].to_s.strip
           pdf_new = creator + '_' + date + '_' + pdf
           FileUtils.cp object.join(pdf), "#{batch_dir}/#{pdf_new}"
