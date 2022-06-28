@@ -465,13 +465,17 @@ def execute(function, config, log)
 
   when 'seleniumScript'
     template_path = Pathname.new(config.fetch(:seleniumTemplates))
-    choices = ['.. Main Menu', 5, 10]
+    choices = ['.. Main Menu', 5, 10, 20, 50]
     response = prompt.select('Number of issues ingested:', choices)
     case response
     when 5
       template_file = 'TDD_template_005.side'
     when 10
       template_file = 'TDD_template_010.side'
+    when 20
+      template_file = 'TDD_template_020.side'
+    when 50
+      template_file = 'TDD_template_050.side'
     when '.. Main Menu'
       function = TDD.main_menu
       execute function, config, log
