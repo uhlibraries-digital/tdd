@@ -63,41 +63,45 @@ module TDD
       'dc.format.digitalOrigin',
       'dc.type.genre',
       'dc.description.abstract',
-      'dc.rights'
+      'dc.rights',
+      'dc.date.copyright',
+      'dcterms.accessRights'
     ]
   end
 
-  def get_dc_headers
-    [
-      'dc.identifier.other',
-      'dc.contributor.advisor',
-      'dc.contributor.committeeMember',
-      'dc.creator',
-      'dc.title',
-      'dc.date.issued',
-      'dc.description.department',
-      'dc.language.iso',
-      'dc.relation.ispartof',
-      'dc.subject',
-      'dc.type.dcmi',
-      'dc.format.mimetype',
-      'dc.format.digitalOrigin',
-      'dc.type.genre',
-      'dc.description.abstract',
-      'dc.rights'
-    ]
-  end
+  # This does not appear to be used - seh 20220727
+  # def get_dc_headers
+  #   [
+  #     'dc.identifier.other',
+  #     'dc.contributor.advisor',
+  #     'dc.contributor.committeeMember',
+  #     'dc.creator',
+  #     'dc.title',
+  #     'dc.date.issued',
+  #     'dc.description.department',
+  #     'dc.language.iso',
+  #     'dc.relation.ispartof',
+  #     'dc.subject',
+  #     'dc.type.dcmi',
+  #     'dc.format.mimetype',
+  #     'dc.format.digitalOrigin',
+  #     'dc.type.genre',
+  #     'dc.description.abstract',
+  #     'dc.rights'
+  #   ]
+  # end
 
-  def get_thesis_headers
-    [
-      'thesis.degree.discipline',
-      'thesis.degree.college',
-      'thesis.degree.department',
-      'thesis.degree.name',
-      'thesis.degree.level',
-      'thesis.degree.grantor',
-    ]
-  end
+  # This does not appear to be used - seh 20220727
+  # def get_thesis_headers
+  #   [
+  #     'thesis.degree.discipline',
+  #     'thesis.degree.college',
+  #     'thesis.degree.department',
+  #     'thesis.degree.name',
+  #     'thesis.degree.level',
+  #     'thesis.degree.grantor',
+  #   ]
+  # end
 
   def reorder(files, order)
     new_files = []
