@@ -28,72 +28,79 @@ def get_metadata(path, metadata = [])
   metadata
 end
 
-pastel = Pastel.new
-# TODO: Loop through these instead
-# dir = 'P:\DigitalProjects\_TDD\5_to_ingest\0_staging'
-# dir = 'P:\DigitalProjects\_TDD\4_to_metadata'
-# dir = 'P:\DigitalProjects\_TDD\3_to_ocr\2_output'
-# dir = 'P:\DigitalProjects\_TDD\3_to_ocr\exceptions'
-# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\1_to_capture'
-# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\2_to_process'
-# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\3_to_metadata_folders'
-# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\4_to_qc'
-dir = 'P:\DigitalProjects\_TDD\1_batch_prep\1_tdd-pre-1978'
-puts pastel.yellow("Updating #{dir}")
+def update_metadata(dir)
+  puts pastel.yellow("Updating #{dir}")
 
-metadata = get_metadata(Pathname.new(dir))
-puts pastel.green("Found #{metadata.size} Metadata Files                         ")
-bar = ProgressBar.create(total: metadata.size, format: 'Writing New Metadata: %c/%C |%W| %a')
-log = Logger.new File.open('update_metadata_schema.log', 'w')
-log.level = Logger::INFO
-errors = []
-metadata.each do |path|
-  begin
-    meta = YAML.load_file(path)
-  rescue StandardError => e
-    log.error "Error - #{e}"
-    errors << path
-    next
+  metadata = get_metadata(Pathname.new(dir))
+  puts pastel.green("Found #{metadata.size} Metadata Files                         ")
+  bar = ProgressBar.create(total: metadata.size, format: 'Writing New Metadata: %c/%C |%W| %a')
+  log = Logger.new File.open('update_metadata_schema.log', 'w')
+  log.level = Logger::INFO
+  errors = []
+  metadata.each do |path|
+    begin
+      meta = YAML.load_file(path)
+    rescue StandardError => e
+      log.error "Error - #{e}"
+      errors << path
+      next
+    end
+    if meta.key?('dc.format.digitalorigin')
+      origin = nilCheck(meta['dc.format.digitalorigin'])
+    else
+      origin = nilCheck(meta['dc.format.digitalOrigin'])
+    end
+    new_meta = {
+      'dc.identifier.other' => nilCheck(meta['dc.identifier.other']),
+      'dc.contributor.advisor' => nilCheck(meta['dc.contributor.advisor']),
+      'dc.contributor.committeeMember' => nilCheck(meta['dc.contributor.committeeMember']),
+      'dc.creator' => nilCheck(meta['dc.creator']),
+      'dc.title' => nilCheck(meta['dc.title']),
+      'dc.date.issued' => nilCheck(meta['dc.date.issued']),
+      'dc.description.department' => nilCheck(meta['dc.description.department']),
+      'thesis.degree.discipline' => nilCheck(meta['thesis.degree.discipline']),
+      'thesis.degree.college' => nilCheck(meta['thesis.degree.college']),
+      'thesis.degree.department' => nilCheck(meta['thesis.degree.department']),
+      'thesis.degree.name' => nilCheck(meta['thesis.degree.name']),
+      'thesis.degree.level' => nilCheck(meta['thesis.degree.level']),
+      'dc.language.iso' => nilCheck(meta['dc.language.iso']),
+      'dc.relation.ispartof' => nilCheck(meta['dc.relation.ispartof']),
+      'dc.subject' => nilCheck(meta['dc.subject']),
+      'dc.type.dcmi' => nilCheck(meta['dc.type.dcmi']),
+      'dc.format.mimetype' => nilCheck(meta['dc.format.mimetype']),
+      'thesis.degree.grantor' => nilCheck(meta['thesis.degree.grantor']),
+      'dc.format.digitalOrigin' => origin,
+      'dc.type.genre' => nilCheck(meta['dc.type.genre']),
+      'dc.description.abstract' => nilCheck(meta['dc.description.abstract']),
+      'dc.rights' => nilCheck(meta['dc.rights']),
+      'dc.date.copyright' => nilCheck(meta['dc.date.copyright']),
+      'dcterms.accessRights' => nilCheck(meta['dcterms.accessRights']),
+      'Pages' => nilCheck(meta['Pages']),
+      'DigiBatch' => nilCheck(meta['DigiBatch']),
+      'DateDigitized' => nilCheck(meta['DateDigitized']),
+      'DigiNote' => nilCheck(meta['DigiNote']),
+      'MetaNote' => nilCheck(meta['MetaNote']),
+      'RightsNote' => nilCheck(meta['RightsNote'])
+    }
+    File.open(path, "w") {|f| f.write(new_meta.to_yaml)}
+    bar.increment
   end
-  if meta.key?('dc.format.digitalorigin')
-    origin = nilCheck(meta['dc.format.digitalorigin'])
-  else
-    origin = nilCheck(meta['dc.format.digitalOrigin'])
-  end
-  new_meta = {
-    'dc.identifier.other' => nilCheck(meta['dc.identifier.other']),
-    'dc.contributor.advisor' => nilCheck(meta['dc.contributor.advisor']),
-    'dc.contributor.committeeMember' => nilCheck(meta['dc.contributor.committeeMember']),
-    'dc.creator' => nilCheck(meta['dc.creator']),
-    'dc.title' => nilCheck(meta['dc.title']),
-    'dc.date.issued' => nilCheck(meta['dc.date.issued']),
-    'dc.description.department' => nilCheck(meta['dc.description.department']),
-    'thesis.degree.discipline' => nilCheck(meta['thesis.degree.discipline']),
-    'thesis.degree.college' => nilCheck(meta['thesis.degree.college']),
-    'thesis.degree.department' => nilCheck(meta['thesis.degree.department']),
-    'thesis.degree.name' => nilCheck(meta['thesis.degree.name']),
-    'thesis.degree.level' => nilCheck(meta['thesis.degree.level']),
-    'dc.language.iso' => nilCheck(meta['dc.language.iso']),
-    'dc.relation.ispartof' => nilCheck(meta['dc.relation.ispartof']),
-    'dc.subject' => nilCheck(meta['dc.subject']),
-    'dc.type.dcmi' => nilCheck(meta['dc.type.dcmi']),
-    'dc.format.mimetype' => nilCheck(meta['dc.format.mimetype']),
-    'thesis.degree.grantor' => nilCheck(meta['thesis.degree.grantor']),
-    'dc.format.digitalOrigin' => origin,
-    'dc.type.genre' => nilCheck(meta['dc.type.genre']),
-    'dc.description.abstract' => nilCheck(meta['dc.description.abstract']),
-    'dc.rights' => nilCheck(meta['dc.rights']),
-    'dc.date.copyright' => nilCheck(meta['dc.date.copyright']),
-    'dcterms.accessRights' => nilCheck(meta['dcterms.accessRights']),
-    'Pages' => nilCheck(meta['Pages']),
-    'DigiBatch' => nilCheck(meta['DigiBatch']),
-    'DateDigitized' => nilCheck(meta['DateDigitized']),
-    'DigiNote' => nilCheck(meta['DigiNote']),
-    'MetaNote' => nilCheck(meta['MetaNote']),
-    'RightsNote' => nilCheck(meta['RightsNote'])
-  }
-  File.open(path, "w") {|f| f.write(new_meta.to_yaml)}
-  bar.increment
+  puts pastel.green("Metadata Update Complete: #{dir}")
 end
-puts pastel.green("Metadata Update Complete: #{dir}")
+
+pastel = Pastel.new
+dirs = [
+  'P:\DigitalProjects\_TDD\5_to_ingest\0_staging',
+  'P:\DigitalProjects\_TDD\4_to_metadata',
+  'P:\DigitalProjects\_TDD\3_to_ocr\2_output',
+  'P:\DigitalProjects\_TDD\3_to_ocr\exceptions',
+  'P:\DigitalProjects\_TDD\2_to_digitization\1_to_capture',
+  'P:\DigitalProjects\_TDD\2_to_digitization\2_to_process',
+  'P:\DigitalProjects\_TDD\2_to_digitization\3_to_metadata_folders',
+  'P:\DigitalProjects\_TDD\2_to_digitization\4_to_qc',
+  'P:\DigitalProjects\_TDD\1_batch_prep\1_tdd-pre-1978'
+]
+dirs.each do |dir|
+  update_metadata(dir)
+end
 puts "Found the following errors: #{errors}" unless errors == []
