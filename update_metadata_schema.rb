@@ -18,7 +18,7 @@ def get_metadata(path, metadata = [])
     if File.directory? child
       get_metadata child, metadata
     else
-      if child.basename.to_s == 'metadata.txt'
+      if child.basename.to_s.end_with?('metadata.txt')
         metadata << child
         print "Gathering metadata.txt files: #{metadata.size}\r"
         $stdout.flush
@@ -29,11 +29,16 @@ def get_metadata(path, metadata = [])
 end
 
 pastel = Pastel.new
-dir = 'P:\DigitalProjects\_TDD\5_to_ingest'
+# TODO: Loop through these instead
+# dir = 'P:\DigitalProjects\_TDD\5_to_ingest\0_staging'
 # dir = 'P:\DigitalProjects\_TDD\4_to_metadata'
-# dir = 'P:\DigitalProjects\_TDD\3_to_ocr'
-# dir = 'P:\DigitalProjects\_TDD\2_to_digitization'
-# dir = 'P:\DigitalProjects\_TDD\1_batch_prep\1_tdd-pre-1978'
+# dir = 'P:\DigitalProjects\_TDD\3_to_ocr\2_output'
+# dir = 'P:\DigitalProjects\_TDD\3_to_ocr\exceptions'
+# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\1_to_capture'
+# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\2_to_process'
+# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\3_to_metadata_folders'
+# dir = 'P:\DigitalProjects\_TDD\2_to_digitization\4_to_qc'
+dir = 'P:\DigitalProjects\_TDD\1_batch_prep\1_tdd-pre-1978'
 puts pastel.yellow("Updating #{dir}")
 
 metadata = get_metadata(Pathname.new(dir))
@@ -57,8 +62,8 @@ metadata.each do |path|
   end
   new_meta = {
     'dc.identifier.other' => nilCheck(meta['dc.identifier.other']),
-    'dc.contributor.advisor' => '',
-    'dc.contributor.committeeMember' => '',
+    'dc.contributor.advisor' => nilCheck(meta['dc.contributor.advisor']),
+    'dc.contributor.committeeMember' => nilCheck(meta['dc.contributor.committeeMember']),
     'dc.creator' => nilCheck(meta['dc.creator']),
     'dc.title' => nilCheck(meta['dc.title']),
     'dc.date.issued' => nilCheck(meta['dc.date.issued']),
@@ -78,6 +83,8 @@ metadata.each do |path|
     'dc.type.genre' => nilCheck(meta['dc.type.genre']),
     'dc.description.abstract' => nilCheck(meta['dc.description.abstract']),
     'dc.rights' => nilCheck(meta['dc.rights']),
+    'dc.date.copyright' => nilCheck(meta['dc.date.copyright']),
+    'dcterms.accessRights' => nilCheck(meta['dcterms.accessRights']),
     'Pages' => nilCheck(meta['Pages']),
     'DigiBatch' => nilCheck(meta['DigiBatch']),
     'DateDigitized' => nilCheck(meta['DateDigitized']),
