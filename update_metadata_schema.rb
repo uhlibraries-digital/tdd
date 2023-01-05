@@ -4,9 +4,16 @@ require 'ruby-progressbar'
 require 'pastel'
 require 'logger'
 
-def nilCheck(field)
-  if field.nil?
-    value = ''
+$pastel = Pastel.new
+$errors = []
+
+def nilCheck(field, replacement = nil)
+  if field.nil? || field.empty?
+    if replacement.nil? || replacement.empty?
+      value = ''
+    else
+      value = replacement.to_s.strip
+    end
   else
     value = field.to_s.strip
   end
@@ -29,26 +36,25 @@ def get_metadata(path, metadata = [])
 end
 
 def update_metadata(dir)
-  puts pastel.yellow("Updating #{dir}")
+  puts $pastel.yellow("Updating #{dir}")
 
   metadata = get_metadata(Pathname.new(dir))
-  puts pastel.green("Found #{metadata.size} Metadata Files                         ")
+  puts $pastel.green("Found #{metadata.size} Metadata Files                         ")
   bar = ProgressBar.create(total: metadata.size, format: 'Writing New Metadata: %c/%C |%W| %a')
   log = Logger.new File.open('update_metadata_schema.log', 'w')
   log.level = Logger::INFO
-  errors = []
   metadata.each do |path|
     begin
       meta = YAML.load_file(path)
     rescue StandardError => e
       log.error "Error - #{e}"
-      errors << path
+      $errors << path
       next
     end
     if meta.key?('dc.format.digitalorigin')
-      origin = nilCheck(meta['dc.format.digitalorigin'])
+      origin = nilCheck(meta['dc.format.digitalorigin'], 'reformatted digital')
     else
-      origin = nilCheck(meta['dc.format.digitalOrigin'])
+      origin = nilCheck(meta['dc.format.digitalOrigin'], 'reformatted digital')
     end
     new_meta = {
       'dc.identifier.other' => nilCheck(meta['dc.identifier.other']),
@@ -85,22 +91,24 @@ def update_metadata(dir)
     File.open(path, "w") {|f| f.write(new_meta.to_yaml)}
     bar.increment
   end
-  puts pastel.green("Metadata Update Complete: #{dir}")
+  puts $pastel.green("Metadata Update Complete: #{dir}")
 end
 
-pastel = Pastel.new
 dirs = [
-  'P:\DigitalProjects\_TDD\5_to_ingest\0_staging',
-  'P:\DigitalProjects\_TDD\4_to_metadata',
-  'P:\DigitalProjects\_TDD\3_to_ocr\2_output',
-  'P:\DigitalProjects\_TDD\3_to_ocr\exceptions',
-  'P:\DigitalProjects\_TDD\2_to_digitization\1_to_capture',
-  'P:\DigitalProjects\_TDD\2_to_digitization\2_to_process',
-  'P:\DigitalProjects\_TDD\2_to_digitization\3_to_metadata_folders',
-  'P:\DigitalProjects\_TDD\2_to_digitization\4_to_qc',
-  'P:\DigitalProjects\_TDD\1_batch_prep\1_tdd-pre-1978'
+  # 'P:\DigitalProjects\_TDD\5_to_ingest\0_staging',
+  # 'P:\DigitalProjects\_TDD\4_to_metadata',
+  # 'P:\DigitalProjects\_TDD\3_to_ocr\2_output',
+  # 'P:\DigitalProjects\_TDD\3_to_ocr\exceptions',
+  # 'P:\DigitalProjects\_TDD\2_to_digitization\1_to_capture',
+  # 'P:\DigitalProjects\_TDD\2_to_digitization\2_to_process',
+  # 'P:\DigitalProjects\_TDD\2_to_digitization\3_to_metadata_folders',
+  # 'P:\DigitalProjects\_TDD\2_to_digitization\4_to_qc',
+  # 'P:\DigitalProjects\_TDD\1_batch_prep\1_tdd-pre-1978',
+  # 'P:\DigitalProjects\_TDD\1_batch_prep\2_tdd-1979-1988',
+  # 'P:\DigitalProjects\_TDD\1_batch_prep\3_tdd-1989-2010'
+  'P:\DigitalProjects\_TDD\1_batch_prep\2_tdd-1979-1988'
 ]
 dirs.each do |dir|
   update_metadata(dir)
 end
-puts "Found the following errors: #{errors}" unless errors == []
+puts "Found the following errors: #{$errors}" unless $errors == []
