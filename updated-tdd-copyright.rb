@@ -13,9 +13,19 @@ def nilCheck(field)
 end
 
 # ==============================================================
+# Update these variables before running on a new file
+# ==============================================================
+file_in = 'UH_Theses_1979_1988_fullmetaFINAL_with_copyright.csv'
+file_out_base = 'tdd-1979-1988'
+#file_out_base = 'tdd-1988-2010'
+dir_out = '2_' + "#{file_out_base}"
+#dir_out = '3_' + "#{file_out_base}"
+
+# ==============================================================
 # parse csv
 # ==============================================================
-tdd = CSV.read('UH_Theses_1979_1988_fullmetaFINAL_with_copyright.csv', headers: true)
+file_out = file_out_base + ".json"
+tdd = CSV.read("#{file_in}", headers: true)
 records = {}
 
 tdd.each do |record|
@@ -40,9 +50,10 @@ tdd.each do |record|
     'dc.type.genre' => nilCheck(record['dc.type.genre']),
     'dc.description.abstract' => nilCheck(record['dc.description.abstract']),
     'dc.rights' => nilCheck(record['dc.rights']),
-    'dc.date.copyright' => nilCheck(record['dc.date.copyright']) }
+    'dc.date.copyright' => nilCheck(record['dc.date.copyright']),
+    'dcterms.accessRights' => nilCheck(record['dcterms.accessRights']) }
 end
-File.open('tdd-pre-1978.json', 'w') {|f| f.write(records.to_json)}
+File.open("#{file_out}", 'w') {|f| f.write(records.to_json)}
 
 
 # ==============================================================
@@ -90,8 +101,8 @@ def create_metadata(id, record)
   metadata
 end
 
-file = File.read('tdd-pre-1978.json')
-parent = 'tdd-pre-1978'
+file = File.read("#{file_out}")
+parent = "#{dir_out}"
 tdd = JSON.parse(file)
 puts "Creating Object Directories..."
 tdd.each do |id,record|
@@ -113,6 +124,8 @@ tdd.each do |id,record|
     dir = "#{parent}/2000s"
   when '201'
     dir = "#{parent}/2010s"
+  when '202'
+    dir = "#{parent}/2020s"
   else
     dir = "#{parent}/unknown"
   end
