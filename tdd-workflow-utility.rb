@@ -436,7 +436,11 @@ def execute(function, config, log)
           metadata = []
           meta_txt = object.join('metadata', "#{object.basename.to_s}_metadata.txt")
           pdf = "#{object.basename.to_s}.pdf"
-          YAML.load_file(meta_txt).each do |k,v|
+          metadata_in = YAML.load_file(meta_txt)
+          if metadata_in['dc.rights'] == 'In Copyright'
+            metadata_in['dcterms.accessRights'] = 'The full text of this item is not available at this time because it contains documents that are presumed to be under copyright and are accessible only to users who have an active CougarNet ID. This item will continue to be made available through interlibrary loan.'
+          end
+          metadata_in.each do |k,v|
             unless admin_fields.include? k
               if k == 'dc.rights'
                 v = 'This item is protected by copyright but is made available here under a claim of fair use (17 U.S.C. Section 107) for non-profit research and educational purposes. Users of this work assume the responsibility for determining copyright status prior to reusing, publishing, or reproducing this item for purposes other than what is allowed by fair use or other copyright exemptions. Any reuse of this item in excess of fair use or other copyright exemptions requires express permission of the copyright holder.'
