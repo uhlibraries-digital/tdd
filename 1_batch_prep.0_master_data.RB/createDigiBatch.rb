@@ -1,3 +1,23 @@
+# ==============================================================
+# What it does: From a txt file containing a list of OCLC ids,
+#     creates the batch for that list.
+# When to use it: When starting a new batch.
+# How to use it: Run the corresponding createDigiBatch*.exe
+# How to build the exe:
+#     Ruby must be installed, and %RUBY_HOME% must point to the
+#         directory where Ruby is installed, e.g. C:\Ruby27-x64
+#     Update lines 22-24 and save the file.
+#     Open a CMD window and navigate to
+#         %your_projects_home%\tdd\1_batch_prep.0_master_data.RB
+#     Run buildCreateDigiBatchExe.bat
+#     Copy or move the resulting createDigiBatch*.exe to
+#         P:\DigitalProejcts\_TDD\1_batch_prep\
+# How to run the exe:
+#     Open a CMD window and navigate to
+#         P:\DigitalProejcts\_TDD\1_batch_prep\
+#     Run the desired createDigiBatch*.exe
+# ==============================================================
+
 require 'fileutils'
 require 'pathname'
 
