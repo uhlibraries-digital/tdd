@@ -1,3 +1,23 @@
+# ==============================================================
+# What it does: From a txt file containing a list of OCLC ids,
+#     creates the batch for that list.
+# When to use it: When starting a new batch.
+# How to use it: Run the corresponding createDigiBatch*.exe
+# How to build the exe:
+#     Ruby must be installed, and %RUBY_HOME% must point to the
+#         directory where Ruby is installed, e.g. C:\Ruby27-x64
+#     Update lines 22-24 and save the file.
+#     Open a CMD window and navigate to
+#         %your_projects_home%\tdd\1_batch_prep.0_master_data.RB
+#     Run buildCreateDigiBatchExe.bat
+#     Copy or move the resulting createDigiBatch*.exe to
+#         P:\DigitalProejcts\_TDD\1_batch_prep\
+# How to run the exe:
+#     Open a CMD window and navigate to
+#         P:\DigitalProejcts\_TDD\1_batch_prep\
+#     Run the desired createDigiBatch*.exe
+# ==============================================================
+
 require 'fileutils'
 require 'pathname'
 
@@ -11,9 +31,9 @@ def start_wizard(wdir)
     total_prepared = objects.size
     FileUtils.mkdir_p "#{wdir}/#{batch}"
 
-    puts "Create Digi Batch (1979-1988)"
-    puts "Loading master data from 2_tdd-1979-1988 ..."
-    paths = Dir.glob("#{wdir}/2_tdd-1979-1988/**/**")
+    puts "Create Digi Batch (Post-1989)"
+    puts "Loading master data from 3_tdd-1989-2009 ..."
+    paths = Dir.glob("#{wdir}/3_tdd-1989-2009/**/**")
     paths.each do |path|
       dir = Pathname.new(path)
       if objects.include? dir.basename.to_s
