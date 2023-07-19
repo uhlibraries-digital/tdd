@@ -10,11 +10,12 @@
 #     Open a CMD window and navigate to
 #         %your_projects_home%\tdd\1_batch_prep.0_master_data.RB
 #     Run buildCreateDigiBatchExe.bat
-#     Copy or move the resulting createDigiBatch*.exe to
-#         P:\DigitalProejcts\_TDD\1_batch_prep\
+#     Copy or move the resulting createDigiBatch.exe from 
+#         %RUBY_HOME%\bin to an appropriate createDigiBatch*.exe
+#         in P:\DigitalProjects\_TDD\1_batch_prep\
 # How to run the exe:
 #     Open a CMD window and navigate to
-#         P:\DigitalProejcts\_TDD\1_batch_prep\
+#         P:\DigitalProjects\_TDD\1_batch_prep\
 #     Run the desired createDigiBatch*.exe
 # ==============================================================
 
