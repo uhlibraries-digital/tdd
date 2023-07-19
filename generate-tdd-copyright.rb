@@ -17,7 +17,7 @@ end
 # ==============================================================
 file_in = 'UH_Theses_1979_1988_fullmetaFINAL_with_copyright.csv'
 file_out_base = 'tdd-1979-1988'
-#file_out_base = 'tdd-1988-2010'
+#file_out_base = 'tdd-1988-2009'
 dir_out = '2_' + "#{file_out_base}"
 #dir_out = '3_' + "#{file_out_base}"
 
@@ -46,7 +46,7 @@ tdd.each do |record|
     'dc.type.dcmi' => nilCheck(record['dc.type.dcmi']),
     'dc.format.mimetype' => nilCheck(record['dc.format.mimetype']),
     'thesis.degree.grantor' => nilCheck(record['thesis.degree.grantor']),
-    'dc.format.digitalorigin' => nilCheck(record['dc.format.digitalorigin']),
+    'dc.format.digitalOrigin' => nilCheck(record['dc.format.digitalOrigin']),
     'dc.type.genre' => nilCheck(record['dc.type.genre']),
     'dc.description.abstract' => nilCheck(record['dc.description.abstract']),
     'dc.rights' => nilCheck(record['dc.rights']),
@@ -87,7 +87,7 @@ def create_metadata(id, record)
   metadata['dc.type.dcmi'] = record['dc.type.dcmi']
   metadata['dc.format.mimetype'] = record['dc.format.mimetype']
   metadata['thesis.degree.grantor'] = record['thesis.degree.grantor']
-  metadata['dc.format.digitalorigin'] = record['dc.format.digitalorigin']
+  metadata['dc.format.digitalOrigin'] = record['dc.format.digitalOrigin']
   metadata['dc.type.genre'] = record['dc.type.genre']
   metadata['dc.description.abstract'] = record['dc.description.abstract']
   metadata['dc.rights'] = record['dc.rights']
