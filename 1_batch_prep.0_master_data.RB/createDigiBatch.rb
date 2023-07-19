@@ -11,9 +11,9 @@ def start_wizard(wdir)
     total_prepared = objects.size
     FileUtils.mkdir_p "#{wdir}/#{batch}"
 
-    puts "Create Digi Batch (1979-1988)"
-    puts "Loading master data from 2_tdd-1979-1988 ..."
-    paths = Dir.glob("#{wdir}/2_tdd-1979-1988/**/**")
+    puts "Create Digi Batch (Post-1989)"
+    puts "Loading master data from 3_tdd-1989-2009 ..."
+    paths = Dir.glob("#{wdir}/3_tdd-1989-2009/**/**")
     paths.each do |path|
       dir = Pathname.new(path)
       if objects.include? dir.basename.to_s
